@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medical Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="background-overlay"></div>
+  <div class="chat-container">
+    <header>
+      <img src="{{ url_for('static', filename='images/doctor-bot.jpg') }}" alt="Bot" class="avatar">
+      <h1>Dr. MedBot</h1>
+      <p>Your AI Medical Assistant</p>
+    </header>
+
+    <div id="chatbox" class="chatbox"></div>
+
+    <div class="input-area">
+      <input type="text" id="user_input" placeholder="Ask me about symptoms, conditions, or medicines..." />
+      <button id="send_button">Send</button>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#send_button").click(function () {
+        let msg = $("#user_input").val();
+        if (msg.trim() === "") return;
+
+        $("#chatbox").append(`
+          <div class='chat user'>
+            <img src='{{ url_for("static", filename="images/user.png") }}' class='chat-avatar'>
+            <div class='chat-message user-msg'>${msg}</div>
+          </div>
+        `);
+
+        $.post("/get", { msg: msg }, function (data) {
+          $("#chatbox").append(`
+            <div class='chat bot'>
+              <img src='{{ url_for("static", filename="images/doctor-bot.jpg") }}' class='chat-avatar'>
+              <div class='chat-message bot-msg'>${data}</div>
+            </div>
+          `);
+          $("#user_input").val("");
+          $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        });
+      });
+
+      $("#user_input").keypress(function (e) {
+        if (e.which === 13) {
+          $("#send_button").click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
